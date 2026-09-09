@@ -1,0 +1,55 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Base platform styling with exact color palette */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: #F8FAFC;
+    color: #475569;
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+
+  /* Headings use Heading color: #0F172A */
+  h1, h2, h3, h4, h5, h6 {
+    color: #0F172A;
+    letter-spacing: -0.025em;
+    font-weight: 700;
+  }
+
+  /* Text selection uses Primary Blue */
+  ::selection {
+    background-color: #2563EB;
+    color: #FFFFFF;
+  }
+}
+
+/* Common reusable utility tokens adhering strictly to palette */
+@layer components {
+  /* Subtle badge tokens */
+  .badge-primary {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary-light text-primary border border-primary/20;
+  }
+
+  .badge-accent {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-accent-light text-accent border border-accent/20;
+  }
+
+  .badge-success {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-green-50 text-status-success border border-status-success/20;
+  }
+
+  .badge-warning {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-status-warning border border-status-warning/20;
+  }
+
+  .badge-error {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-50 text-status-error border border-status-error/20;
+  }
+}
