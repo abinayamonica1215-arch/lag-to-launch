@@ -4,13 +4,14 @@ import InputField from '../components/forms/InputField';
 import Button from '../components/common/Button';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import { setStoredUsername } from '../utils/user';
+import { apiFetch } from '../utils/api';
 
 /**
  * LoginPage Component
  * 
  * Step 4 — Prototype Frontend Login Screen
  * - Responsive 2-column layout (Brand / Journey panel on Left, Form Card on Right)
- * - Frontend-only state simulation (No API, backend, database, or real auth)
+ * - Connected to FastAPI backend authentication API (/login)
  * - Strict adherence to Lag to Launch color palette:
  *   Primary (#4F46E5), Primary Dark (#3730A3), Primary Light (#EEF2FF),
  *   Accent (#06B6D4), Background (#F8FAFC), Card (#FFFFFF),
@@ -24,32 +25,60 @@ export default function LoginPage() {
   const [rememberMe, setRememberMe] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [showDemoError, setShowDemoError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const [demoNotice, setDemoNotice] = useState('');
 
-  // Handle Form Submission (Frontend Simulation Only)
-  const handleSubmit = (e) => {
+  // Handle Form Submission (Connected to FastAPI backend)
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setDemoNotice('');
     setShowDemoError(false);
+    setErrorMessage('');
+
+    const cleanUsername = username.trim();
+    if (!cleanUsername || !password.trim()) {
+      setShowDemoError(true);
+      setErrorMessage('Please enter both username/email and password.');
+      return;
+    }
+
     setIsLoading(true);
 
-    // Simulate short network latency for presentation purposes
-    setTimeout(() => {
-      setIsLoading(false);
-      const cleanUsername = username.trim();
-      if (!cleanUsername || !password.trim()) {
-        setShowDemoError(true);
+    try {
+      const data = await apiFetch('/login', {
+        method: 'POST',
+        body: JSON.stringify({
+          email: cleanUsername,
+          password: password,
+        }),
+      });
+
+      // Save real user details returned by backend into localStorage
+      if (data.name) {
+        setStoredUsername(data.name);
       } else {
-        // Dynamically store the exact username entered by the user
         setStoredUsername(cleanUsername);
-        navigate('/dashboard');
       }
-    }, 600);
+      if (data.student_id) {
+        localStorage.setItem('student_id', data.student_id);
+      }
+      if (data.email) {
+        localStorage.setItem('student_email', data.email);
+      }
+
+      navigate('/dashboard');
+    } catch (err) {
+      setShowDemoError(true);
+      setErrorMessage(err.message || 'Unable to sign in. Please check your details and try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // Toggle demo error state for review
   const handleToggleError = () => {
     setShowDemoError((prev) => !prev);
+    setErrorMessage('');
     setDemoNotice('');
   };
 
@@ -198,7 +227,7 @@ export default function LoginPage() {
                 </svg>
                 <div className="flex-1">
                   <span className="font-semibold block">Sign-in Error</span>
-                  <span>Unable to sign in. Please check your details and try again.</span>
+                  <span>{errorMessage || 'Unable to sign in. Please check your details and try again.'}</span>
                 </div>
               </div>
             )}
